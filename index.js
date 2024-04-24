@@ -15,12 +15,18 @@ app.use(express.json());
 //and set the  header content-type as json
 
 // Available Routes:
-app.get("/api/v1", (req, res) => {
+app.get("/api", (req, res) => {
   res.send("Welcome to Expense Management System!");
 });
 
 const user = require("./routes/user");
-app.use("/api/v1/user", user);
+app.use("/api/user", user);
+
+const location = require("./routes/location");
+app.use("/api/location", location);
+
+const categoryType = require("./routes/categoryType");
+app.use("/api/category", categoryType);
 
 app.listen(port, () => {
   console.log(

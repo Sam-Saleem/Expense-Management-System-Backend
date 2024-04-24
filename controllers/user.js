@@ -25,16 +25,16 @@ const createUser = async (req, res) => {
   const { username, password, location, image, modifiedBy } = req.body;
   try {
     // check whether the user with this username exists:
-    let user = await User.findOne({ username });
 
-    if (user) {
-      return res.status(400).json({
-        error: "Sorry a user with this username already exists",
-      });
-    }
+    // let user;  = await User.findOne({ username });
+    // if (user) {
+    //   return res.status(400).json({
+    //     error: "Sorry a user with this username already exists",
+    //   });
+    // }
     const salt = await bcrypt.genSalt(10);
     const secPass = await bcrypt.hash(password, salt);
-    user = await User.create({
+    const user = await User.create({
       username,
       location,
       image,
@@ -55,10 +55,20 @@ const createUser = async (req, res) => {
 
     return res.status(200).json({ authToken });
   } catch (err) {
-    console.log(err);
-    res.status(500).send({
-      error: "Server Error: Could not create new user.",
-    });
+    console.error(err);
+    // Check if the error is a duplicate key error
+    if (err.code === 11000 && err.keyPattern) {
+      return res.status(409).json({
+        error:
+          "Duplicate key error, Sorry a user with this username already exists",
+        message: err.errmsg,
+      });
+    } else {
+      // Handle other types of errors
+      return res.status(500).json({
+        error: "Server Error: Could not create new user.",
+      });
+    }
   }
 };
 
@@ -149,6 +159,12 @@ const deleteUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { username, password } = req.body;
   try {
+    // can create an express validator
+    if (!username || !password) {
+      return res.status(400).json({
+        message: "Missing required feild.",
+      });
+    }
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(401).json({

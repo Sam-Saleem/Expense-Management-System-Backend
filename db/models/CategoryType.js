@@ -3,9 +3,18 @@ const { Schema } = mongoose;
 
 const CategoryTypeSchema = new Schema(
   {
-    categoryType: { type: String, required: true },
+    categoryType: { type: String, required: true, unique: true },
     isExpense: { type: Boolean },
-    modifiedBy: { type: String, required: true },
+    modifiedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true }
 );
